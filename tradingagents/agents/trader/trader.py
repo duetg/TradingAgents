@@ -2,10 +2,13 @@ import functools
 import time
 import json
 
+from tradingagents.agents.utils.agent_utils import build_instrument_context
+
 
 def create_trader(llm, memory):
     def trader_node(state, name):
         company_name = state["company_of_interest"]
+        instrument_context = build_instrument_context(company_name)
         investment_plan = state["investment_plan"]
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]
@@ -24,7 +27,7 @@ def create_trader(llm, memory):
 
         context = {
             "role": "user",
-            "content": f"基于分析师团队的综合分析，这是为 {company_name} 量身定制的投资计划。该计划融合了当前技术市场趋势、宏观经济指标和社交媒体情绪的见解。以此计划为基础来评估您的下一个交易决策。\n\n建议投资计划：{investment_plan}\n\n利用这些见解做出明智和战略性的决策。",
+            "content": f"基于分析师团队的综合分析，这是为 {company_name} 量身定制的投资计划。{instrument_context} 该计划融合了当前技术市场趋势、宏观经济指标和社交媒体情绪的见解。以此计划为基础来评估您的下一个交易决策。\n\n建议投资计划：{investment_plan}\n\n利用这些见解做出明智和战略性的决策。",
         }
 
         messages = [

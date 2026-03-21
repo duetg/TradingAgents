@@ -508,7 +508,7 @@ def get_user_selections():
     # Step 1: Ticker symbol
     console.print(
         create_question_box(
-            "步骤 1: 股票代码", "输入要分析的股票代码", "SPY"
+            "步骤 1: 股票代码", "输入股票代码，需包含交易所后缀（如 SPY、700.HK、600519）", "SPY"
         )
     )
     selected_ticker = get_ticker()

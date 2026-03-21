@@ -1,7 +1,11 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import time
 import json
-from tradingagents.agents.utils.agent_utils import get_stock_data, get_indicators
+from tradingagents.agents.utils.agent_utils import (
+    build_instrument_context,
+    get_indicators,
+    get_stock_data,
+)
 from tradingagents.dataflows.config import get_config
 
 
@@ -10,7 +14,7 @@ def create_market_analyst(llm):
     def market_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
-        company_name = state["company_of_interest"]
+        instrument_context = build_instrument_context(ticker)
 
         tools = [
             get_stock_data,
@@ -42,8 +46,8 @@ MACD相关：
 成交量指标：
 - vwma: VWMA：成交量加权移动平均线。用途：通过整合价格走势与成交量数据来确认趋势。提示：注意成交量突增导致的偏差；与其他成交量分析结合使用。
 
-- 选择提供多样化且互补信息的指标。避免冗余（例如，不要同时选择rsi和stochrsi）。同时简要解释它们为何适合给定的市场背景。当您调用工具时，请使用上述指标的确切名称，因为它们是已定义的参数，否则您的调用将失败。请确保首先调用get_stock_data获取生成指标所需的CSV数据。然后使用get_indicators并指定具体指标名称。对您观察到的趋势撰写一份非常详细和细致的报告。不要简单地陈述趋势是混合的，而是提供可帮助交易者做出决策的详细和精细的分析与见解。"""
-            + """ 请务必在报告末尾附加一个Markdown表格，以组织和呈现报告中的关键点，使其易于阅读。"""
+- 选择提供多样化且互补信息的指标。避免冗余（例如，不要同时选择rsi和stochrsi）。同时简要解释它们为何适合给定的市场背景。当您调用工具时，请使用上述指标的确切名称，因为它们是已定义的参数，否则您的调用将失败。请确保首先调用get_stock_data获取生成指标所需的CSV数据。然后使用get_indicators并指定具体指标名称。请务必在报告末尾附加一个Markdown表格，以组织和呈现报告中的关键点，使其易于阅读。
+Always preserve the exact ticker symbol provided by the user, including any exchange suffix, and never mix in similarly named companies from other exchanges. Write a very detailed and nuanced report of the trends you observe. Do not simply state the trends are mixed, provide detailed and finegrained analysis and insights that may help traders make decisions."""
         )
 
         prompt = ChatPromptTemplate.from_messages(
@@ -56,7 +60,7 @@ MACD相关：
                     " 如果您或任何其他助手有最终交易建议：**买入/持有/卖出**或交付物，"
                     " 请在您的回复前加上最终交易建议：**买入/持有/卖出**，以便团队知道停止。"
                     " 您可以使用以下工具：{tool_names}。\n{system_message}"
-                    "供您参考，当前日期是 {current_date}。我们要关注的公司是 {ticker}",
+                    "供您参考，当前日期是 {current_date}。{instrument_context}"
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -65,7 +69,7 @@ MACD相关：
         prompt = prompt.partial(system_message=system_message)
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
         prompt = prompt.partial(current_date=current_date)
-        prompt = prompt.partial(ticker=ticker)
+        prompt = prompt.partial(instrument_context=instrument_context)
 
         chain = prompt | llm.bind_tools(tools)
 

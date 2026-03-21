@@ -7,6 +7,8 @@ from cli.models import AnalystType
 
 console = Console()
 
+TICKER_INPUT_EXAMPLES = "Examples: SPY, CNC.TO, 7203.T, 0700.HK"
+
 ANALYST_ORDER = [
     ("市场分析师", AnalystType.MARKET),
     ("社交媒体分析师", AnalystType.SOCIAL),
@@ -18,7 +20,7 @@ ANALYST_ORDER = [
 def get_ticker() -> str:
     """Prompt the user to enter a ticker symbol."""
     ticker = questionary.text(
-        "输入要分析的股票代码：",
+        f"输入股票代码（如 SPY、700.HK、600519）：",
         validate=lambda x: len(x.strip()) > 0 or "请输入有效的股票代码。",
         style=questionary.Style(
             [
@@ -32,6 +34,11 @@ def get_ticker() -> str:
         console.print("\n[red]未提供股票代码。正在退出...[/red]")
         exit(1)
 
+    return normalize_ticker_symbol(ticker)
+
+
+def normalize_ticker_symbol(ticker: str) -> str:
+    """Normalize ticker input while preserving exchange suffixes."""
     return ticker.strip().upper()
 
 
