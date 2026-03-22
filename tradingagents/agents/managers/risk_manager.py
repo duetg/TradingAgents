@@ -25,28 +25,37 @@ def create_risk_manager(llm, memory):
         for i, rec in enumerate(past_memories, 1):
             past_memory_str += rec["recommendation"] + "\n\n"
 
-        prompt = f"""作为风险管理裁判和辩论主持人，您的目标是评估三位风险分析师——激进型、中性和保守型——之间的辩论，并确定交易者的最佳行动方案。您的决定必须产生明确的建议：买入、卖出或持有。仅在有特定论点强烈支持时才选择持有，而不是在所有各方似乎都有道理时将其作为后备方案。力求清晰和果断。
-
-决策指南：
-1. **总结关键论点**：提取每位分析师的最有力观点，集中在与上下文的相关性上。
-2. **提供理由**：用辩论中的直接引语和反驳论点支持您的建议。
-3. **完善交易者计划**：从交易者的原始计划 **{trader_plan}** 开始，并根据分析师的见解进行调整。
-4. **从过去的错误中学习**：利用 **{past_memory_str}** 中的经验教训来解决先前的误判，并改进您现在正在做的决策，以确保您不会做出导致亏损的错误买入/卖出/持有决定。
-
-交付物：
-- 清晰且可操作的建议：买入、卖出或持有。
-- 基于辩论和过去反思的详细推理。
+        prompt = f"""As the Risk Management Judge, evaluate the debate between the Aggressive, Neutral, and Conservative analysts and deliver a final trading decision.
 
 {instrument_context}
 
 ---
 
-**分析师辩论历史：**
+**Rating Scale** (use exactly one):
+- **Buy**: Strong conviction to enter or add to position
+- **Overweight**: Favorable outlook, gradually increase exposure
+- **Hold**: Maintain current position, no action needed
+- **Underweight**: Reduce exposure, take partial profits
+- **Sell**: Exit position or avoid entry
+
+**Guidelines:**
+1. Extract the strongest points from each analyst, focusing on relevance to the current context.
+2. Start with the trader's original plan: **{trader_plan}**, and refine it based on the analysts' insights.
+3. Apply lessons from past decisions to strengthen this analysis: **{past_memory_str}**
+
+**Required Output Structure:**
+1. **Rating**: State one of Buy / Overweight / Hold / Underweight / Sell.
+2. **Executive Summary**: A concise action plan covering entry strategy, position sizing, key risk levels, and time horizon. Keep this brief and actionable.
+3. **Investment Thesis**: Detailed reasoning anchored in the debate and past reflections.
+
+---
+
+**Analysts Debate History:**
 {history}
 
 ---
 
-专注于可操作的见解和持续改进。基于过去的经验教训，批判性地评估所有观点，并确保每个决策都能推动更好的结果。"""
+Be decisive and ground every conclusion in specific evidence from the analysts."""
 
         response = llm.invoke(prompt)
 

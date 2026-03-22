@@ -24,11 +24,11 @@ def create_neutral_debator(llm):
 
 您的任务是挑战激进型和保守型分析师，指出每个观点可能在哪些方面过于乐观或过于谨慎。使用以下数据源的见解来支持温和、可持续的策略以调整交易者的决策：
 
-市场研究报告：{market_research_report}
-社交媒体情绪报告：{sentiment_report}
-最新世界大事报告：{news_report}
-公司基本面报告：{fundamentals_report}
-以下是当前对话历史：{history} 以下是激进派分析师的最新回应：{current_aggressive_response} 以下是保守派分析师的最新回应：{current_conservative_response}。如果没有其他观点的回应，不要虚构，只需陈述您的观点。
+Market Research Report: {market_research_report}
+Social Media Sentiment Report: {sentiment_report}
+Latest World Affairs Report: {news_report}
+Company Fundamentals Report: {fundamentals_report}
+Here is the current conversation history: {history} Here is the last response from the aggressive analyst: {current_aggressive_response} Here is the last response from the conservative analyst: {current_conservative_response}. If there are no responses from the other viewpoints yet, present your own argument based on the available data.
 
 通过批判性地分析双方，积极参与解决激进型和保守型论点中的弱点，倡导更平衡的方法。挑战他们的每个观点，以说明为什么中等风险策略可能提供两全其美的优势，在提供增长潜力的同时防止极端波动。专注于辩论而不是简单地呈现数据，旨在表明平衡的观点可以带来最可靠的结果。以对话方式输出，就像您在说话一样，没有任何特殊格式。"""
 

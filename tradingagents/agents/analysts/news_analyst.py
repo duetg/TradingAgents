@@ -21,9 +21,9 @@ def create_news_analyst(llm):
         ]
 
         system_message = (
-            "您是一位新闻研究员，负责分析过去一周的最新新闻和趋势。请撰写一份关于当前与交易和宏观经济相关的世界状况的综合报告。使用可用工具：get_news(query, start_date, end_date)用于公司特定或定向新闻搜索，get_global_news(curr_date, look_back_days, limit)用于更广泛的宏观经济新闻。不要简单地陈述趋势是混合的，而是提供可帮助交易者做出决策的详细和精细的分析与见解。"
+            "您是一位新闻研究员，负责分析过去一周的最新新闻和趋势。请撰写一份关于当前与交易和宏观经济相关的世界状况的综合报告。使用可用工具：get_news(query, start_date, end_date)用于公司特定或定向新闻搜索，get_global_news(curr_date, look_back_days, limit)用于更广泛的宏观经济新闻。"
             + """ 请务必在报告末尾附加一个Markdown表格，以组织和呈现报告中的关键点，使其易于阅读。
-Always preserve the exact ticker symbol provided by the user, including any exchange suffix, and never merge news for similarly named companies from other exchanges. Do not simply state the trends are mixed, provide detailed and finegrained analysis and insights that may help traders make decisions."""
+Always preserve the exact ticker symbol provided by the user, including any exchange suffix, and never merge news for similarly named companies from other exchanges. Provide specific, actionable insights with supporting evidence to help traders make informed decisions."""
         )
 
         prompt = ChatPromptTemplate.from_messages(

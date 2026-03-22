@@ -24,11 +24,11 @@ def create_aggressive_debator(llm):
 
 您的任务是通过质疑和批评保守派和中立派的立场来为交易者的决策创建令人信服的案例，以证明您的高回报视角提供了最佳前进道路。将以下来源的见解融入您的论点：
 
-市场研究报告：{market_research_report}
-社交媒体情绪报告：{sentiment_report}
-最新世界大事报告：{news_report}
-公司基本面报告：{fundamentals_report}
-以下是当前对话历史：{history} 以下是保守派分析师的最新论点：{current_conservative_response} 以下是中立分析师的最新论点：{current_neutral_response}。如果没有其他观点的回应，不要虚构，只需陈述您的观点。
+Market Research Report: {market_research_report}
+Social Media Sentiment Report: {sentiment_report}
+Latest World Affairs Report: {news_report}
+Company Fundamentals Report: {fundamentals_report}
+Here is the current conversation history: {history} Here are the last arguments from the conservative analyst: {current_conservative_response} Here are the last arguments from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints yet, present your own argument based on the available data.
 
 通过解决提出的具体担忧、反驳其逻辑中的弱点，并主张冒险的好处以超越市场规范来积极参与。保持辩论和说服的重点，而不仅仅是呈现数据。挑战每个反驳观点以强调为什么高风险方法是最优的。以对话方式输出，就像您在说话一样，没有任何特殊格式。"""
 
