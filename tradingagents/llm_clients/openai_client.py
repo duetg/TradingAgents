@@ -56,8 +56,16 @@ class OpenAIClient(BaseLLMClient):
         elif self.provider == "ollama":
             llm_kwargs["base_url"] = "http://localhost:11434/v1"
             llm_kwargs["api_key"] = "ollama"  # Ollama doesn't require auth
+        elif self.provider == "minimax":
+            llm_kwargs["base_url"] = "https://api.minimaxi.com/v1"
         elif self.base_url:
             llm_kwargs["base_url"] = self.base_url
+
+        # MiniMax support
+        if not llm_kwargs.get("api_key"):
+            minimax_key = os.environ.get("MINIMAX_API_KEY")
+            if minimax_key:
+                llm_kwargs["api_key"] = minimax_key
 
         for key in ("timeout", "max_retries", "reasoning_effort", "api_key", "callbacks", "http_client", "http_async_client"):
             if key in self.kwargs:

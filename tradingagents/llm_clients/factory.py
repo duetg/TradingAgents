@@ -46,4 +46,7 @@ def create_llm_client(
     if provider_lower == "google":
         return GoogleClient(model, base_url, **kwargs)
 
+    if provider_lower == "minimax":
+        return OpenAIClient(model, base_url, provider="openai", **kwargs)
+
     raise ValueError(f"Unsupported LLM provider: {provider}")
