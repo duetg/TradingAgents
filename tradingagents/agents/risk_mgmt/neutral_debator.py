@@ -41,7 +41,7 @@ Here is the current conversation history: {history} Here is the last response fr
             "aggressive_history": risk_debate_state.get("aggressive_history", ""),
             "conservative_history": risk_debate_state.get("conservative_history", ""),
             "neutral_history": neutral_history + "\n" + argument,
-            "latest_speaker": "中立",
+            "latest_speaker": "Neutral",
             "current_aggressive_response": risk_debate_state.get(
                 "current_aggressive_response", ""
             ),
