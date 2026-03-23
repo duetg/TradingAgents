@@ -5,7 +5,26 @@ This module provides data interfaces for:
 - Financial statements (financial reports)
 - Technical indicators
 - News data
+
+Note: Uses akshare-proxy-patch to bypass East Money API restrictions.
 """
+
+# Install proxy patch for East Money API access
+try:
+    import akshare_proxy_patch
+    akshare_proxy_patch.install_patch(
+        "101.201.173.125",
+        auth_token="",
+        retry=30,
+        hook_domains=[
+            "fund.eastmoney.com",
+            "push2.eastmoney.com",
+            "push2his.eastmoney.com",
+            "emweb.securities.eastmoney.com",
+        ],
+    )
+except ImportError:
+    pass  # Proxy patch not installed, use direct connection
 
 import akshare as ak
 import pandas as pd
@@ -16,7 +35,7 @@ import os
 
 # A-share stock symbol normalization
 def _normalize_symbol(symbol: str) -> str:
-    """Normalize A-share stock symbol to standard format.
+    """Normalize A-share stock symbol to standard 6-digit format.
 
     A-shares use 6-digit codes:
     - 6xxxxxx: Shanghai (上交所)
@@ -289,13 +308,13 @@ def get_fundamentals(
 ) -> str:
     """Get company fundamentals overview for A-share stocks.
 
-    Uses East Money individual stock info API.
+    Uses stock_financial_analysis_indicator which provides 86 financial metrics.
     """
     try:
         ticker = _normalize_symbol(ticker)
 
-        # Get individual stock info from East Money
-        df = ak.stock_individual_info_em(symbol=ticker)
+        # Get financial analysis indicators (86 metrics, no proxy needed)
+        df = ak.stock_financial_analysis_indicator(symbol=ticker, start_year="2023")
 
         if df is None or df.empty:
             return f"No fundamentals data found for symbol '{ticker}'"
@@ -303,16 +322,17 @@ def get_fundamentals(
         # Convert to key-value format
         lines = []
         for _, row in df.iterrows():
-            indicator = row.get("指标", "")
-            value = row.get("Value", row.get("值", ""))
-            if indicator and value:
-                lines.append(f"{indicator}: {value}")
+            date = row.get("日期", "")
+            for col in df.columns:
+                if col != "日期" and pd.notna(row.get(col)):
+                    lines.append(f"{date} {col}: {row.get(col)}")
 
         header = f"# Company Fundamentals for {ticker}\n"
         header += f"# Data retrieved on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        header += f"# Source: akshare (East Money)\n\n"
+        header += f"# Source: akshare (East Money)\n"
+        header += f"# Total indicators: {len(df.columns)}\n\n"
 
-        return header + "\n".join(lines)
+        return header + "\n".join(lines[:200])  # Limit to first 200 lines
 
     except Exception as e:
         return f"Error retrieving fundamentals for {ticker}: {str(e)}"
@@ -325,19 +345,25 @@ def get_balance_sheet(
 ) -> str:
     """Get balance sheet data for A-share stocks.
 
-    Uses East Money financial report API.
+    Uses stock_financial_analysis_indicator which includes balance sheet metrics.
     """
     try:
         ticker = _normalize_symbol(ticker)
 
-        # Get balance sheet data
-        df = ak.stock_zdjz_balanace_sheet_em(symbol=ticker)
+        # Get financial indicators (includes balance sheet data)
+        df = ak.stock_financial_analysis_indicator(symbol=ticker, start_year="2023")
 
         if df is None or df.empty:
             return f"No balance sheet data found for symbol '{ticker}'"
 
-        # Convert to CSV string
-        csv_string = df.to_csv(index=False)
+        # Filter to balance sheet related columns
+        bs_columns = [col for col in df.columns if any(x in col for x in ['资产', '负债', '权益', '股东', '资本', '盈余', '未分配'])]
+        if bs_columns:
+            bs_df = df[['日期'] + bs_columns].copy()
+        else:
+            bs_df = df
+
+        csv_string = bs_df.to_csv(index=False)
 
         header = f"# Balance Sheet data for {ticker} ({freq})\n"
         header += f"# Data retrieved on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -356,19 +382,25 @@ def get_cashflow(
 ) -> str:
     """Get cash flow statement data for A-share stocks.
 
-    Uses East Money financial report API.
+    Uses stock_financial_analysis_indicator which includes cash flow metrics.
     """
     try:
         ticker = _normalize_symbol(ticker)
 
-        # Get cash flow data
-        df = ak.stock_zdjz_cash_flow_em(symbol=ticker)
+        # Get financial indicators (includes cash flow data)
+        df = ak.stock_financial_analysis_indicator(symbol=ticker, start_year="2023")
 
         if df is None or df.empty:
             return f"No cash flow data found for symbol '{ticker}'"
 
-        # Convert to CSV string
-        csv_string = df.to_csv(index=False)
+        # Filter to cash flow related columns
+        cf_columns = [col for col in df.columns if any(x in col for x in ['现金流', '经营', '投资', '筹资'])]
+        if cf_columns:
+            cf_df = df[['日期'] + cf_columns].copy()
+        else:
+            cf_df = df
+
+        csv_string = cf_df.to_csv(index=False)
 
         header = f"# Cash Flow Statement for {ticker} ({freq})\n"
         header += f"# Data retrieved on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -387,19 +419,25 @@ def get_income_statement(
 ) -> str:
     """Get income statement data for A-share stocks.
 
-    Uses East Money financial report API.
+    Uses stock_financial_analysis_indicator which includes income statement metrics.
     """
     try:
         ticker = _normalize_symbol(ticker)
 
-        # Get income statement data
-        df = ak.stock_zdjz_profit_statement_em(symbol=ticker)
+        # Get financial indicators (includes income statement data)
+        df = ak.stock_financial_analysis_indicator(symbol=ticker, start_year="2023")
 
         if df is None or df.empty:
             return f"No income statement data found for symbol '{ticker}'"
 
-        # Convert to CSV string
-        csv_string = df.to_csv(index=False)
+        # Filter to income statement related columns
+        is_columns = [col for col in df.columns if any(x in col for x in ['营收', '利润', '收入', '成本', '费用', '净利润', '营业利润', '利润总额'])]
+        if is_columns:
+            is_df = df[['日期'] + is_columns].copy()
+        else:
+            is_df = df
+
+        csv_string = is_df.to_csv(index=False)
 
         header = f"# Income Statement for {ticker} ({freq})\n"
         header += f"# Data retrieved on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -474,36 +512,65 @@ def get_global_news(
 ) -> str:
     """Get global/macro economic news for Chinese market.
 
-    Uses East Money macro news API.
+    Uses CCTV news (news_cctv) for macro economic and policy news.
+    This is the best available alternative to global_news for A-shares market.
     """
     try:
         # Calculate date range
         curr_dt = datetime.strptime(curr_date, "%Y-%m-%d")
         start_dt = curr_dt - timedelta(days=look_back_days)
 
-        # Get macro news from East Money
-        df = ak.stock_macro_china()
-
-        if df is None or df.empty:
-            return f"No global news found for {curr_date}"
-
         news_items = []
 
-        for _, row in df.head(limit).iterrows():
-            title = row.get("新闻标题", row.get("title", ""))
-            content = row.get("新闻内容", row.get("content", ""))
-            pub_date = row.get("发布时间", row.get("pub_date", ""))
+        # Get CCTV news (央视新闻 - economic and policy focused)
+        try:
+            df_cctv = ak.news_cctv()
+            if df_cctv is not None and not df_cctv.empty:
+                for _, row in df_cctv.head(limit).iterrows():
+                    date = row.get("date", "")
+                    content = row.get("content", "")
+                    if not content:
+                        continue
+                    # CCTV news content is the full text, title is first line
+                    lines = content.split("\n")
+                    title = lines[0] if lines else content[:100]
+                    news_items.append(f"### [央视新闻] {title} ({date})\n{content[:500]}\n")
+        except Exception as e:
+            news_items.append(f"### 央视新闻获取失败: {str(e)}\n")
 
-            if not title:
-                continue
+        # Get China macro data as background
+        macro_items = []
+        try:
+            # GDP data
+            df_gdp = ak.macro_china_gdp()
+            if df_gdp is not None and not df_gdp.empty:
+                latest_gdp = df_gdp.iloc[0]
+                gdp_val = latest_gdp.get("国内生产总值-绝对值", "N/A")
+                gdp_growth = latest_gdp.get("国内生产总值-同比增长", "N/A")
+                macro_items.append(f"- 中国GDP: {gdp_val}亿元, 同比增长: {gdp_growth}%")
+        except Exception:
+            pass
 
-            news_items.append(f"### {title} ({pub_date})\n{content}\n")
+        try:
+            # CPI data
+            df_cpi = ak.macro_china_cpi()
+            if df_cpi is not None and not df_cpi.empty:
+                latest_cpi = df_cpi.iloc[0]
+                cpi_val = latest_cpi.get("全国-同比增长", "N/A")
+                macro_items.append(f"- 中国CPI同比增长: {cpi_val}%")
+        except Exception:
+            pass
 
-        if not news_items:
-            return f"No global news found for {curr_date}"
+        if not news_items and not macro_items:
+            return f"No global/macro news found for {curr_date}"
 
-        result = f"## Global/Macro News, from {start_dt.strftime('%Y-%m-%d')} to {curr_date}:\n\n"
-        result += "\n".join(news_items)
+        result = f"## Global/Macro News & Economic Data, from {start_dt.strftime('%Y-%m-%d')} to {curr_date}:\n\n"
+
+        if macro_items:
+            result += "### 最新宏观经济数据:\n" + "\n".join(macro_items) + "\n\n"
+
+        if news_items:
+            result += "### 宏观新闻:\n\n" + "\n".join(news_items)
 
         return result
 

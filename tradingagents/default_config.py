@@ -7,16 +7,11 @@ DEFAULT_CONFIG = {
         os.path.abspath(os.path.join(os.path.dirname(__file__), ".")),
         "dataflows/data_cache",
     ),
-    # LLM settings
-    "llm_provider": "openai",
-    "deep_think_llm": "gpt-5.2",
-    "quick_think_llm": "gpt-5-mini",
-    "backend_url": "https://api.openai.com/v1",
-
-    # MiniMax example (OpenAI compatible)
-    # "llm_provider": "minimax",
-    # "deep_think_llm": "MiniMax-M2.7",
-    # "quick_think_llm": "MiniMax-M2.7",
+    # LLM settings (default: MiniMax for A-shares)
+    "llm_provider": "minimax",
+    "deep_think_llm": "MiniMax-M2.7",
+    "quick_think_llm": "MiniMax-M2.5",
+    "backend_url": "https://api.minimaxi.com/v1",
     # Set environment variable: MINIMAX_API_KEY=your_key
     # Provider-specific thinking configuration
     "google_thinking_level": None,      # "high", "minimal", etc.
@@ -25,24 +20,16 @@ DEFAULT_CONFIG = {
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
     "max_recur_limit": 100,
-    # Data vendor configuration
+    # Data vendor configuration (default: akshare for A-shares)
     # Category-level configuration (default for all tools in category)
     "data_vendors": {
-        "core_stock_apis": "yfinance",       # Options: alpha_vantage, yfinance, akshare
-        "technical_indicators": "yfinance",  # Options: alpha_vantage, yfinance, akshare
-        "fundamental_data": "yfinance",      # Options: alpha_vantage, yfinance, akshare
-        "news_data": "yfinance",             # Options: alpha_vantage, yfinance, akshare
+        "core_stock_apis": "akshare",       # Options: alpha_vantage, yfinance, akshare
+        "technical_indicators": "akshare",  # Options: alpha_vantage, yfinance, akshare
+        "fundamental_data": "akshare",      # Options: alpha_vantage, yfinance, akshare
+        "news_data": "akshare",             # Options: alpha_vantage, yfinance, akshare
     },
     # Tool-level configuration (takes precedence over category-level)
     "tool_vendors": {
         # Example: "get_stock_data": "alpha_vantage",  # Override category default
     },
-
-    # A-shares (China) example configuration:
-    # "data_vendors": {
-    #     "core_stock_apis": "akshare",       # Use akshare for A-shares
-    #     "technical_indicators": "akshare",
-    #     "fundamental_data": "akshare",
-    #     "news_data": "akshare",
-    # },
 }
