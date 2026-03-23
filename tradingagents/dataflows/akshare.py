@@ -9,28 +9,123 @@ This module provides data interfaces for:
 Note: Uses akshare-proxy-patch to bypass East Money API restrictions.
 """
 
+import os
+
+
+# Read proxy configuration from environment
+_AKSHARE_PROXY_ENABLED = os.environ.get("AKSHARE_PROXY_ENABLED", "true").lower() not in ("false", "0", "no")
+_AKSHARE_PROXY_TOKEN = os.environ.get("AKSHARE_PROXY_TOKEN", "")
+
+
+def check_data_source_connectivity() -> None:
+    """Check East Money API connectivity before analysis starts.
+
+    Tests connectivity using a simple akshare API call. The akshare_proxy_patch
+    (if installed and enabled) will automatically route requests through the proxy.
+
+    Raises:
+        SystemExit: If connectivity check fails, with detailed explanation.
+    """
+    errors = []
+
+    # Test with a simple akshare call
+    try:
+        # Try to get stock list - this will use the proxy patch if installed
+        ak.stock_zh_a_spot_em()
+        return  # Success
+    except Exception as e:
+        error_str = str(e).lower()
+
+        # Analyze error to provide helpful messages
+        if any(x in error_str for x in ["proxy", "代理", "timeout", "超时", "connection", "连接"]):
+            if _AKSHARE_PROXY_ENABLED and not _AKSHARE_PROXY_TOKEN:
+                errors.append("代理启用但未配置token，可能是免费配额已用尽")
+            elif _AKSHARE_PROXY_ENABLED:
+                errors.append("代理连接失败，可能是代理服务器不可用或配额已用尽")
+            else:
+                errors.append(f"直连失败: {str(e)}")
+        elif "404" in error_str or "not found" in error_str:
+            errors.append("API端点不存在，可能服务已变更")
+        elif "500" in error_str or "server error" in error_str:
+            errors.append("东方财富服务器内部错误，可能正在维护")
+        elif "权限" in error_str or "permission" in error_str:
+            errors.append("API权限被拒绝，可能需要更新akshare版本")
+        else:
+            errors.append(f"未知错误: {str(e)}")
+
+    # Provide detailed guidance
+    error_detail = "\n".join(errors)
+    error_msg = f"""
+[数据源连通性检查失败]
+
+无法连接到东方财富（East Money）数据源。
+
+可能原因及解决方案：
+
+1. 服务器宕机
+   - 东方财富服务器可能正在进行维护
+   - 请稍后重试
+
+2. 非交易时间
+   - A股交易时间：周一至周五 9:30-11:30、13:00-15:00
+   - 非交易时间可能无法获取实时数据
+   - 历史数据查询通常不受影响
+
+3. 代理配额耗尽（如果您使用的是代理）
+   - akshare-proxy-patch 免费版配额可能已用尽
+   - 请访问 https://api.aastock.com 申请新的代理token
+   - 在 .env 文件中设置 AKSHARE_PROXY_TOKEN=您的token
+   - 或者设置 AKSHARE_PROXY_ENABLED=false 禁用代理使用直连
+
+4. 网络问题
+   - 请检查您的网络连接
+   - 如使用VPN或代理，请确保配置正确
+
+5. akshare版本过旧
+   - 请运行: pip install akshare --upgrade
+
+当前配置：
+- 代理启用: {_AKSHARE_PROXY_ENABLED}
+- 代理Token: {'已设置' if _AKSHARE_PROXY_TOKEN else '未设置（使用免费配额）'}
+
+详细错误信息：
+{error_detail}
+
+如问题持续存在，请查看：
+- https://github.com/akfamily/akshare
+- https://akshare.akfamily.xyz/
+"""
+    print(error_msg)
+    raise SystemExit(1)
+
+
 # Install proxy patch for East Money API access
-try:
-    import akshare_proxy_patch
-    akshare_proxy_patch.install_patch(
-        "101.201.173.125",
-        auth_token="",
-        retry=30,
-        hook_domains=[
-            "fund.eastmoney.com",
-            "push2.eastmoney.com",
-            "push2his.eastmoney.com",
-            "emweb.securities.eastmoney.com",
-        ],
-    )
-except ImportError:
-    pass  # Proxy patch not installed, use direct connection
+if _AKSHARE_PROXY_ENABLED:
+    try:
+        import akshare_proxy_patch
+        akshare_proxy_patch.install_patch(
+            "101.201.173.125",
+            auth_token=_AKSHARE_PROXY_TOKEN,
+            retry=30,
+            hook_domains=[
+                "fund.eastmoney.com",
+                "push2.eastmoney.com",
+                "push2his.eastmoney.com",
+                "emweb.securities.eastmoney.com",
+            ],
+        )
+    except ImportError:
+        print("[警告] akshare-proxy-patch 未安装，将使用直连模式")
+        _AKSHARE_PROXY_ENABLED = False
 
 import akshare as ak
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Annotated
-import os
+
+
+# Verify connectivity before returning
+check_data_source_connectivity()
 
 
 # A-share stock symbol normalization
