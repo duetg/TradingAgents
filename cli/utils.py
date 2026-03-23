@@ -177,10 +177,11 @@ def select_shallow_thinking_agent(provider) -> str:
             ("MiniMax-M2 - Fastest, simple tasks", "MiniMax-M2"),
         ],
         "bailian": [
-            ("Qwen3.5-Plus - 轻量快速", "qwen3.5-plus"),
             ("Kimi-K2.5 - 平衡之选", "kimi-k2.5"),
             ("GLM-5 - 高性价比", "glm-5"),
             ("MiniMax-M2.5 - 平衡速度与能力", "MiniMax-M2.5"),
+            ("Qwen3-Max-2026-01-23 - 最强推理", "qwen3-max-2026-01-23"),
+            ("GLM-4.7 - 高性能深度思考", "glm-4.7"),
         ],
     }
 
@@ -255,9 +256,10 @@ def select_deep_thinking_agent(provider) -> str:
             ("MiniMax-M2.1 - Lightweight", "MiniMax-M2.1"),
         ],
         "bailian": [
-            ("Qwen3-Max-2026-01-23 - 最强推理", "qwen3-max-2026-01-23"),
-            ("GLM-4.7 - 高性能深度思考", "glm-4.7"),
             ("Qwen3.5-Plus - 轻量快速", "qwen3.5-plus"),
+            ("Kimi-K2.5 - 平衡之选", "kimi-k2.5"),
+            ("GLM-5 - 高性价比", "glm-5"),
+            ("MiniMax-M2.5 - 平衡速度与能力", "MiniMax-M2.5"),
         ],
     }
 
