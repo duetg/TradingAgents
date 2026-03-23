@@ -30,6 +30,7 @@ _PROVIDER_CONFIG = {
     "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
     "ollama": ("http://localhost:11434/v1", None),
     "minimax": ("https://api.minimaxi.com/v1", "MINIMAX_API_KEY"),
+    "bailian": ("https://coding.dashscope.aliyuncs.com/v1", "DASHSCOPE_API_KEY"),
 }
 
 

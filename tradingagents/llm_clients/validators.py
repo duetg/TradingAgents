@@ -55,6 +55,15 @@ VALID_MODELS = {
         "MiniMax-M2.1",
         "MiniMax-M2",
     ],
+    "bailian": [
+        # Alibaba Cloud Bailian Coding Plan
+        "qwen3.5-plus",
+        "kimi-k2.5",
+        "glm-5",
+        "MiniMax-M2.5",
+        "qwen3-max-2026-01-23",
+        "glm-4.7",
+    ],
 }
 
 
