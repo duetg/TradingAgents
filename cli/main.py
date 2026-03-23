@@ -1,5 +1,6 @@
 from typing import Optional
 import datetime
+import re
 import typer
 from pathlib import Path
 from functools import wraps
@@ -28,6 +29,17 @@ from tradingagents.default_config import DEFAULT_CONFIG
 from cli.models import AnalystType
 from cli.utils import *
 from cli.announcements import fetch_announcements, display_announcements
+
+
+def strip_thinking_tags(text: str) -> str:
+    """Remove thinking/reasoning content from LLM responses.
+
+    Some models (e.g., MiniMax) include <think> thinking tags in their output.
+    This function removes content between these tags for cleaner report display.
+    """
+    if not text:
+        return text
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 from cli.stats_handler import StatsCallbackHandler
 
 console = Console()
@@ -152,7 +164,7 @@ class MessageBuffer:
 
     def update_report_section(self, section_name, content):
         if section_name in self.report_sections:
-            self.report_sections[section_name] = content
+            self.report_sections[section_name] = strip_thinking_tags(content)
             self._update_current_report()
 
     def _update_current_report(self):
@@ -640,20 +652,24 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
     analyst_parts = []
     if final_state.get("market_report"):
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "market.md").write_text(final_state["market_report"])
-        analyst_parts.append(("市场分析师", final_state["market_report"]))
+        market_content = strip_thinking_tags(final_state["market_report"])
+        (analysts_dir / "market.md").write_text(market_content)
+        analyst_parts.append(("市场分析师", market_content))
     if final_state.get("sentiment_report"):
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "sentiment.md").write_text(final_state["sentiment_report"])
-        analyst_parts.append(("社交媒体分析师", final_state["sentiment_report"]))
+        sentiment_content = strip_thinking_tags(final_state["sentiment_report"])
+        (analysts_dir / "sentiment.md").write_text(sentiment_content)
+        analyst_parts.append(("社交媒体分析师", sentiment_content))
     if final_state.get("news_report"):
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "news.md").write_text(final_state["news_report"])
-        analyst_parts.append(("新闻分析师", final_state["news_report"]))
+        news_content = strip_thinking_tags(final_state["news_report"])
+        (analysts_dir / "news.md").write_text(news_content)
+        analyst_parts.append(("新闻分析师", news_content))
     if final_state.get("fundamentals_report"):
         analysts_dir.mkdir(exist_ok=True)
-        (analysts_dir / "fundamentals.md").write_text(final_state["fundamentals_report"])
-        analyst_parts.append(("基本面分析师", final_state["fundamentals_report"]))
+        fundamentals_content = strip_thinking_tags(final_state["fundamentals_report"])
+        (analysts_dir / "fundamentals.md").write_text(fundamentals_content)
+        analyst_parts.append(("基本面分析师", fundamentals_content))
     if analyst_parts:
         content = "\n\n".join(f"### {name}\n{text}" for name, text in analyst_parts)
         sections.append(f"## I. Analyst Team Reports\n\n{content}")
@@ -665,16 +681,19 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
         research_parts = []
         if debate.get("bull_history"):
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "bull.md").write_text(debate["bull_history"])
-            research_parts.append(("多头研究员", debate["bull_history"]))
+            bull_content = strip_thinking_tags(debate["bull_history"])
+            (research_dir / "bull.md").write_text(bull_content)
+            research_parts.append(("多头研究员", bull_content))
         if debate.get("bear_history"):
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "bear.md").write_text(debate["bear_history"])
-            research_parts.append(("空头研究员", debate["bear_history"]))
+            bear_content = strip_thinking_tags(debate["bear_history"])
+            (research_dir / "bear.md").write_text(bear_content)
+            research_parts.append(("空头研究员", bear_content))
         if debate.get("judge_decision"):
             research_dir.mkdir(exist_ok=True)
-            (research_dir / "manager.md").write_text(debate["judge_decision"])
-            research_parts.append(("研究经理", debate["judge_decision"]))
+            judge_content = strip_thinking_tags(debate["judge_decision"])
+            (research_dir / "manager.md").write_text(judge_content)
+            research_parts.append(("研究经理", judge_content))
         if research_parts:
             content = "\n\n".join(f"### {name}\n{text}" for name, text in research_parts)
             sections.append(f"## II. Research Team Decision\n\n{content}")
@@ -683,8 +702,9 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
     if final_state.get("trader_investment_plan"):
         trading_dir = save_path / "3_trading"
         trading_dir.mkdir(exist_ok=True)
-        (trading_dir / "trader.md").write_text(final_state["trader_investment_plan"])
-        sections.append(f"## III. Trading Team Plan\n\n### Trader\n{final_state['trader_investment_plan']}")
+        trader_content = strip_thinking_tags(final_state["trader_investment_plan"])
+        (trading_dir / "trader.md").write_text(trader_content)
+        sections.append(f"## III. Trading Team Plan\n\n### Trader\n{trader_content}")
 
     # 4. Risk Management
     if final_state.get("risk_debate_state"):
@@ -693,16 +713,19 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
         risk_parts = []
         if risk.get("aggressive_history"):
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "aggressive.md").write_text(risk["aggressive_history"])
-            risk_parts.append(("激进分析师", risk["aggressive_history"]))
+            agg_content = strip_thinking_tags(risk["aggressive_history"])
+            (risk_dir / "aggressive.md").write_text(agg_content)
+            risk_parts.append(("激进分析师", agg_content))
         if risk.get("conservative_history"):
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "conservative.md").write_text(risk["conservative_history"])
-            risk_parts.append(("保守分析师", risk["conservative_history"]))
+            con_content = strip_thinking_tags(risk["conservative_history"])
+            (risk_dir / "conservative.md").write_text(con_content)
+            risk_parts.append(("保守分析师", con_content))
         if risk.get("neutral_history"):
             risk_dir.mkdir(exist_ok=True)
-            (risk_dir / "neutral.md").write_text(risk["neutral_history"])
-            risk_parts.append(("中性分析师", risk["neutral_history"]))
+            neu_content = strip_thinking_tags(risk["neutral_history"])
+            (risk_dir / "neutral.md").write_text(neu_content)
+            risk_parts.append(("中性分析师", neu_content))
         if risk_parts:
             content = "\n\n".join(f"### {name}\n{text}" for name, text in risk_parts)
             sections.append(f"## IV. Risk Management Team Decision\n\n{content}")
@@ -711,8 +734,9 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
         if risk.get("judge_decision"):
             portfolio_dir = save_path / "5_portfolio"
             portfolio_dir.mkdir(exist_ok=True)
-            (portfolio_dir / "decision.md").write_text(risk["judge_decision"])
-            sections.append(f"## V. Portfolio Manager Decision\n\n### Portfolio Manager\n{risk['judge_decision']}")
+            judge_content = strip_thinking_tags(risk["judge_decision"])
+            (portfolio_dir / "decision.md").write_text(judge_content)
+            sections.append(f"## V. Portfolio Manager Decision\n\n### Portfolio Manager\n{judge_content}")
 
     # Write consolidated report
     header = f"# 交易分析报告: {ticker}\n\n生成时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
@@ -728,13 +752,13 @@ def display_complete_report(final_state):
     # I. Analyst Team Reports
     analysts = []
     if final_state.get("market_report"):
-        analysts.append(("市场分析师", final_state["market_report"]))
+        analysts.append(("市场分析师", strip_thinking_tags(final_state["market_report"])))
     if final_state.get("sentiment_report"):
-        analysts.append(("社交媒体分析师", final_state["sentiment_report"]))
+        analysts.append(("社交媒体分析师", strip_thinking_tags(final_state["sentiment_report"])))
     if final_state.get("news_report"):
-        analysts.append(("新闻分析师", final_state["news_report"]))
+        analysts.append(("新闻分析师", strip_thinking_tags(final_state["news_report"])))
     if final_state.get("fundamentals_report"):
-        analysts.append(("基本面分析师", final_state["fundamentals_report"]))
+        analysts.append(("基本面分析师", strip_thinking_tags(final_state["fundamentals_report"])))
     if analysts:
         console.print(Panel("[bold]一、分析师团队报告[/bold]", border_style="cyan"))
         for title, content in analysts:
@@ -745,11 +769,11 @@ def display_complete_report(final_state):
         debate = final_state["investment_debate_state"]
         research = []
         if debate.get("bull_history"):
-            research.append(("多头研究员", debate["bull_history"]))
+            research.append(("多头研究员", strip_thinking_tags(debate["bull_history"])))
         if debate.get("bear_history"):
-            research.append(("空头研究员", debate["bear_history"]))
+            research.append(("空头研究员", strip_thinking_tags(debate["bear_history"])))
         if debate.get("judge_decision"):
-            research.append(("研究经理", debate["judge_decision"]))
+            research.append(("研究经理", strip_thinking_tags(debate["judge_decision"])))
         if research:
             console.print(Panel("[bold]二、研究团队决策[/bold]", border_style="magenta"))
             for title, content in research:
@@ -758,18 +782,18 @@ def display_complete_report(final_state):
     # III. Trading Team
     if final_state.get("trader_investment_plan"):
         console.print(Panel("[bold]三、交易团队计划[/bold]", border_style="yellow"))
-        console.print(Panel(Markdown(final_state["trader_investment_plan"]), title="交易员", border_style="blue", padding=(1, 2)))
+        console.print(Panel(Markdown(strip_thinking_tags(final_state["trader_investment_plan"])), title="交易员", border_style="blue", padding=(1, 2)))
 
     # IV. Risk Management Team
     if final_state.get("risk_debate_state"):
         risk = final_state["risk_debate_state"]
         risk_reports = []
         if risk.get("aggressive_history"):
-            risk_reports.append(("激进分析师", risk["aggressive_history"]))
+            risk_reports.append(("激进分析师", strip_thinking_tags(risk["aggressive_history"])))
         if risk.get("conservative_history"):
-            risk_reports.append(("保守分析师", risk["conservative_history"]))
+            risk_reports.append(("保守分析师", strip_thinking_tags(risk["conservative_history"])))
         if risk.get("neutral_history"):
-            risk_reports.append(("中性分析师", risk["neutral_history"]))
+            risk_reports.append(("中性分析师", strip_thinking_tags(risk["neutral_history"])))
         if risk_reports:
             console.print(Panel("[bold]四、风险管理团队决策[/bold]", border_style="red"))
             for title, content in risk_reports:
@@ -778,7 +802,7 @@ def display_complete_report(final_state):
         # V. Portfolio Manager Decision
         if risk.get("judge_decision"):
             console.print(Panel("[bold]五、组合经理决策[/bold]", border_style="green"))
-            console.print(Panel(Markdown(risk["judge_decision"]), title="组合经理", border_style="blue", padding=(1, 2)))
+            console.print(Panel(Markdown(strip_thinking_tags(risk["judge_decision"])), title="组合经理", border_style="blue", padding=(1, 2)))
 
 
 def update_research_team_status(status):
