@@ -23,9 +23,9 @@ class SignalProcessor:
         messages = [
             (
                 "system",
-                "You are an efficient assistant that extracts the trading decision from analyst reports. "
-                "Extract the rating as exactly one of: BUY, OVERWEIGHT, HOLD, UNDERWEIGHT, SELL. "
-                "Output only the single rating word, nothing else.",
+                "您是一位高效的助手，负责从分析师报告中提取交易决策。"
+                "请提取评级，只能是以下之一：BUY, OVERWEIGHT, HOLD, UNDERWEIGHT, SELL。"
+                "只输出单个评级词，不要添加任何其他文本。",
             ),
             ("human", full_signal),
         ]

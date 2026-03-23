@@ -25,11 +25,11 @@ def create_conservative_debator(llm):
 
 您的任务是积极反击激进型和中立型分析师的论点，突出他们可能忽视的潜在威胁或未能优先考虑可持续性的地方。通过以下数据来源构建令人信服的低风险方法调整案例，直接回应他们的观点：
 
-Market Research Report: {market_research_report}
-Social Media Sentiment Report: {sentiment_report}
-Latest World Affairs Report: {news_report}
-Company Fundamentals Report: {fundamentals_report}
-Here is the current conversation history: {history} Here is the last response from the aggressive analyst: {current_aggressive_response} Here is the last response from the neutral analyst: {current_neutral_response}. If there are no responses from the other viewpoints yet, present your own argument based on the available data.
+市场研究报告：{market_research_report}
+社交媒体情绪报告：{sentiment_report}
+最新世界大事报告：{news_report}
+公司基本面报告：{fundamentals_report}
+以下是当前对话历史：{history} 以下是激进派分析师的最新回应：{current_aggressive_response} 以下是中立分析师的最新回应：{current_neutral_response}。如果没有其他观点的回应，不要虚构，只需陈述您的观点。
 
 通过质疑他们的乐观态度并强调他们可能忽视的潜在缺点来参与。回应他们的每个反驳观点，以展示为什么保守立场最终是公司资产的最安全路径。专注于辩论和批评他们的论点，以证明低风险策略的优势。以对话方式输出，就像您在说话一样，没有任何特殊格式。"""
 

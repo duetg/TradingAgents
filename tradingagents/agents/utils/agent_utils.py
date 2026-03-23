@@ -21,11 +21,11 @@ from tradingagents.agents.utils.news_data_tools import (
 
 
 def build_instrument_context(ticker: str) -> str:
-    """Describe the exact instrument so agents preserve exchange-qualified tickers."""
+    """描述具体的投资标的，使 agent 保留含交易所后缀的股票代码。"""
     return (
-        f"The instrument to analyze is `{ticker}`. "
-        "Use this exact ticker in every tool call, report, and recommendation, "
-        "preserving any exchange suffix (e.g. `.TO`, `.L`, `.HK`, `.T`)."
+        f"要分析的标的是 `{ticker}`。"
+        "在每次工具调用、报告和建议中都使用此精确代码，"
+        "保留任何交易所后缀（例如 `.TO`、`.L`、`.HK`、`.T`）。"
     )
 
 def create_msg_delete():

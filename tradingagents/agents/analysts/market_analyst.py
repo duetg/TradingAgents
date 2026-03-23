@@ -47,7 +47,7 @@ MACD相关：
 - vwma: VWMA：成交量加权移动平均线。用途：通过整合价格走势与成交量数据来确认趋势。提示：注意成交量突增导致的偏差；与其他成交量分析结合使用。
 
 - 选择提供多样化且互补信息的指标。避免冗余（例如，不要同时选择rsi和stochrsi）。同时简要解释它们为何适合给定的市场背景。当您调用工具时，请使用上述指标的确切名称，因为它们是已定义的参数，否则您的调用将失败。请确保首先调用get_stock_data获取生成指标所需的CSV数据。然后使用get_indicators并指定具体指标名称。请务必在报告末尾附加一个Markdown表格，以组织和呈现报告中的关键点，使其易于阅读。
-Always preserve the exact ticker symbol provided by the user, including any exchange suffix, and never mix in similarly named companies from other exchanges. Provide specific, actionable insights with supporting evidence to help traders make informed decisions."""
+请始终保留用户提供的精确股票代码，包括交易所后缀，不要混入其他交易所的同名公司。请提供具体且可操作的见解，以及帮助交易者做出明智决策的支撑证据。"""
         )
 
         prompt = ChatPromptTemplate.from_messages(
