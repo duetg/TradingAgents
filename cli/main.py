@@ -52,7 +52,7 @@ class MessageBuffer:
     # Analyst name mapping
     ANALYST_MAPPING = {
         "market": "市场分析师",
-        "social": "情绪分析师",
+        "social": "社交媒体分析师",
         "news": "新闻分析师",
         "fundamentals": "基本面分析师",
     }
@@ -62,7 +62,7 @@ class MessageBuffer:
     # finalizing_agent: which agent must be "completed" for this report to count as done
     REPORT_SECTIONS = {
         "market_report": ("market", "市场分析师"),
-        "sentiment_report": ("social", "情绪分析师"),
+        "sentiment_report": ("social", "社交媒体分析师"),
         "news_report": ("news", "新闻分析师"),
         "fundamentals_report": ("fundamentals", "基本面分析师"),
         "investment_plan": (None, "研究经理"),
@@ -283,7 +283,7 @@ def update_display(layout, spinner_text=None, stats_handler=None, start_time=Non
     all_teams = {
         "分析师团队": [
             "市场分析师",
-            "情绪分析师",
+            "社交媒体分析师",
             "新闻分析师",
             "基本面分析师",
         ],
@@ -645,7 +645,7 @@ def save_report_to_disk(final_state, ticker: str, save_path: Path):
     if final_state.get("sentiment_report"):
         analysts_dir.mkdir(exist_ok=True)
         (analysts_dir / "sentiment.md").write_text(final_state["sentiment_report"])
-        analyst_parts.append(("社交分析师", final_state["sentiment_report"]))
+        analyst_parts.append(("社交媒体分析师", final_state["sentiment_report"]))
     if final_state.get("news_report"):
         analysts_dir.mkdir(exist_ok=True)
         (analysts_dir / "news.md").write_text(final_state["news_report"])
@@ -730,7 +730,7 @@ def display_complete_report(final_state):
     if final_state.get("market_report"):
         analysts.append(("市场分析师", final_state["market_report"]))
     if final_state.get("sentiment_report"):
-        analysts.append(("情绪分析师", final_state["sentiment_report"]))
+        analysts.append(("社交媒体分析师", final_state["sentiment_report"]))
     if final_state.get("news_report"):
         analysts.append(("新闻分析师", final_state["news_report"]))
     if final_state.get("fundamentals_report"):
@@ -792,7 +792,7 @@ def update_research_team_status(status):
 ANALYST_ORDER = ["market", "social", "news", "fundamentals"]
 ANALYST_AGENT_NAMES = {
     "market": "市场分析师",
-    "social": "情绪分析师",
+    "social": "社交媒体分析师",
     "news": "新闻分析师",
     "fundamentals": "基本面分析师",
 }
