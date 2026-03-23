@@ -306,7 +306,7 @@ def update_display(layout, spinner_text=None, stats_handler=None, start_time=Non
         status = message_buffer.agent_status.get(first_agent, "pending")
         if status == "in_progress":
             spinner = Spinner(
-                "dots", text="[blue]in_progress[/blue]", style="bold cyan"
+                "dots", text="[blue]进行中[/blue]", style="bold cyan"
             )
             status_cell = spinner
         else:
@@ -1157,7 +1157,7 @@ def run_analysis():
             message_buffer.update_agent_status(agent, "completed")
 
         message_buffer.add_message(
-            "System", f"Completed analysis for {selections['analysis_date']}"
+            "系统", f"已完成对 {selections['analysis_date']} 的分析"
         )
 
         # Update final report sections

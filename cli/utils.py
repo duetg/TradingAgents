@@ -349,11 +349,11 @@ def ask_anthropic_effort() -> str | None:
     Controls token usage and response thoroughness on Claude 4.5+ and 4.6 models.
     """
     return questionary.select(
-        "Select Effort Level:",
+        "选择思考深度：",
         choices=[
-            questionary.Choice("High (recommended)", "high"),
-            questionary.Choice("Medium (balanced)", "medium"),
-            questionary.Choice("Low (faster, cheaper)", "low"),
+            questionary.Choice("高（推荐）", "high"),
+            questionary.Choice("中（平衡）", "medium"),
+            questionary.Choice("低（更快）", "low"),
         ],
         style=questionary.Style([
             ("selected", "fg:cyan noinherit"),
